@@ -1,0 +1,176 @@
+<!-- producto/templates/producto/detalle_producto.html -->
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Detalle del Producto</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
+    <style>
+        .carousel-item img {
+            max-height: 400px;
+            object-fit: contain;
+            width: 100%;
+        }
+        .card:hover .quantity-controls {
+            display: block;
+        }
+        .quantity-controls {
+            display: none;
+            position: absolute;
+            bottom: 10px;
+            right: 10px;
+            background: rgba(255, 255, 255, 0.8);
+            padding: 5px;
+            border-radius: 5px;
+        }
+        .image-gallery {
+            position: relative;
+        }
+        .image-gallery img {
+            max-height: 200px;
+            max-width: 100%;
+            object-fit: cover;
+        }
+        .no-images-placeholder {
+            max-height: 200px;
+            max-width: 100%;
+            object-fit: cover;
+        }
+    </style>
+</head>
+<body>
+    <div class="container mt-5">
+        <h1 class="mb-4">{{ producto.nombre }}</h1>
+
+        <!-- Carrusel de imágenes del producto -->
+        <div id="productoImagenesCarousel" class="carousel slide mb-4" data-bs-ride="carousel">
+            <div class="carousel-inner">
+                {% if producto.imagen %}
+                    <div class="carousel-item active">
+                        <img src="{{ producto.imagen.url }}" class="d-block w-100" alt="{{ producto.nombre }}">
+                    </div>
+                {% endif %}
+
+                {% for imagen in producto.imagenes.all %}
+                    <div class="carousel-item {% if not producto.imagen and forloop.first %}active{% endif %}">
+                        <img src="{{ imagen.imagen.url }}" class="d-block w-100" alt="Imagen {{ forloop.counter }}">
+                    </div>
+                {% endfor %}
+            </div>
+            <!-- Controles del carrusel -->
+            <button class="carousel-control-prev" type="button" data-bs-target="#productoImagenesCarousel" data-bs-slide="prev">
+                <span class="carousel-control-prev-icon" aria-hidden="true"></span>
+                <span class="visually-hidden">Anterior</span>
+            </button>
+            <button class="carousel-control-next" type="button" data-bs-target="#productoImagenesCarousel" data-bs-slide="next">
+                <span class="carousel-control-next-icon" aria-hidden="true"></span>
+                <span class="visually-hidden">Siguiente</span>
+            </button>
+        </div>
+
+        <!-- Información del producto -->
+        <div class="mb-3">
+            <h3>Descripción</h3>
+            <p>{{ producto.descripcion }}</p>
+        </div>
+
+        <div class="mb-3">
+            <h3>Precio: ${{ producto.precio_base }}</h3>
+        </div>
+
+        <div class="mb-3">
+            <h3>Contacto de Referencia: {{ producto.contacto_de_referencia }}</h3>
+        </div>
+
+        {% if tiene_variantes %}
+            <!-- Mostrar las variantes si están disponibles -->
+            <h3>Productos Disponibles</h3>
+            <div class="row">
+                {% for variante in producto.variantes.all %}
+                    <div class="col-md-4 mb-3">
+                        <div class="card h-100 position-relative">
+                            <div class="image-gallery">
+                                {% if variante.imagenes.exists %}
+                                    <div id="variantesImagenesCarousel-{{ variante.id }}" class="carousel slide" data-bs-ride="carousel">
+                                        <div class="carousel-inner">
+                                            {% for imagen in variante.imagenes.all %}
+                                                <div class="carousel-item {% if forloop.first %}active{% endif %}">
+                                                    <img src="{{ imagen.imagen.url }}" alt="Imagen de {{ variante.nombre }}" class="d-block w-100">
+                                                </div>
+                                            {% endfor %}
+                                        </div>
+                                        <!-- Controles del carrusel -->
+                                        <button class="carousel-control-prev" type="button" data-bs-target="#variantesImagenesCarousel-{{ variante.id }}" data-bs-slide="prev">
+                                            <span class="carousel-control-prev-icon" aria-hidden="true"></span>
+                                            <span class="visually-hidden">Anterior</span>
+                                        </button>
+                                        <button class="carousel-control-next" type="button" data-bs-target="#variantesImagenesCarousel-{{ variante.id }}" data-bs-slide="next">
+                                            <span class="carousel-control-next-icon" aria-hidden="true"></span>
+                                            <span class="visually-hidden">Siguiente</span>
+                                        </button>
+                                    </div>
+                                {% else %}
+                                    <img src="https://via.placeholder.com/150" class="img-thumbnail no-images-placeholder" alt="Sin imagen">
+                                {% endif %}
+                            </div>
+                            <div class="card-body">
+                                <h5 class="card-title">{{ variante.nombre }}</h5>
+                                <p class="card-text">Stock: {{ variante.stock_disponible }}</p>
+                                <p class="card-text">Precio: ${{ variante.precio }}</p>
+                                {% if variante.stock_disponible > 0 %}
+                                <div class="quantity-controls">
+                                    <button class="btn btn-outline-secondary btn-sm" onclick="decrementarCantidad('{{ variante.id }}')">-</button>
+                                    <input type="number" id="cantidad-{{ variante.id }}" name="cantidad-{{ variante.id }}" value="0" min="0" class="form-control text-center" style="width: 60px;" data-stock="{{variante.stock_disponible}} ">
+                                    <button class="btn btn-outline-secondary btn-sm" onclick="incrementarCantidad('{{ variante.id }}')">+</button>
+                                </div>
+                                {% else %}
+                                <div class="text-danger" style="font-weight: bold;">
+                                    <i class="bi bi-exclamation-circle"></i> ¡Agotado!
+                                </div>
+                                {% endif %}
+                            </div>
+                        </div>
+                    </div>
+                {% endfor %}
+            </div>
+        {% endif %}
+        <!-- Mostrar el formulario solo si no hay variantes -->
+        <div class="d-flex mt-4">
+            {% if not tiene_variantes %}
+                <input type="number" id="cantidad" name="cantidad" value="1" min="1" class="form-control me-2" style="width: 80px;">
+            {% endif %}
+            <button class="btn btn-primary" onclick="agregarAlCarrito()">Agregar al Carrito</button>
+        </div>
+       
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        function incrementarCantidad(id) {
+            let cantidadInput = document.getElementById('cantidad-' + id);
+            let cantidad = parseInt(cantidadInput.value);
+            let stock = parseInt(cantidadInput.getAttribute('data-stock'));
+            if (cantidad < stock) {
+                cantidadInput.value = cantidad + 1;
+            } else {
+                alert('No hay suficiente stock disponible');
+            }
+        }
+
+        function decrementarCantidad(id) {
+            let cantidadInput = document.getElementById('cantidad-' + id);
+            let cantidad = parseInt(cantidadInput.value);
+            if (cantidad > 0) {
+                cantidadInput.value = cantidad - 1;
+            }
+        }
+
+        function agregarAlCarrito() {
+            let cantidad = document.getElementById('cantidad').value;
+            // Agregar lógica para enviar cantidad al servidor o al carrito
+            console.log('Cantidad del producto general:', cantidad);
+        }
+    </script>
+</body>
+</html>

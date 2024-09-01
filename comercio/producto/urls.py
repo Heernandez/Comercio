@@ -4,6 +4,8 @@ from django.urls import path
 from . import views
 
 urlpatterns = [
-    path('', views.index, name='index'),  # Ruta para la vista 'index'
+    #path('', views.index, name='index'),  # Ruta para la vista 'index'
     path('detalle/', views.detalle, name='detalle'),  # Otra ruta como ejemplo
+    path('', views.productos, name='productos'),
+    path('<int:id>/', views.producto_detalle, name='producto_detalle'),
 ]
