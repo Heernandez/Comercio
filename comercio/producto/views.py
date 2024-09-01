@@ -3,6 +3,15 @@ from .models import Producto, Subproducto  # Cambié Variante por Subproducto
 from django.shortcuts import render, get_object_or_404
 from django.http import JsonResponse
 
+def lista_productos(request):
+    query = request.GET.get('search', '')
+    if query:
+        productos = Producto.objects.filter(nombre__icontains=query)
+    else:
+        productos = Producto.objects.all()
+
+    return render(request, 'producto/producto.html', {'productos': productos})
+
 def agregar_al_carrito(request):
     if request.method == 'POST':
         producto_id = request.POST.get('producto_id')
