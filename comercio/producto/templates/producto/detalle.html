@@ -263,7 +263,7 @@
             let stock = parseInt(cantidadInput.getAttribute('data-stock'));
             let quantityControls = document.querySelector(`#cantidad-${id}`).closest('.card').querySelector('.quantity-controls');
 
-            if (cantidad >= stock) {
+            if (cantidad > 0) {
                 quantityControls.classList.add('always-visible');
             } else {
                 quantityControls.classList.remove('always-visible');
