@@ -17,6 +17,15 @@
     </style>
 </head>
 <body>
+    <nav class="navbar navbar-dark bg-dark"
+        <div class="container-fluid">
+            <a class="navbar-brand" href="/producto">Inicio</a> 
+            <form class="d-flex">
+            <input class="form-control me-2" type="search" placeholder="Search" aria-label="Search">
+            <button class="btn btn-outline-success" type="submit">Search</button>
+            </form>
+        </div>
+    </nav>
     <div class="container mt-5">
         <h1 class="mb-4">Lista de Productos</h1>
         <div class="row">
@@ -24,8 +33,8 @@
                 <div class="col-md-4">
                     <a href="{% url 'producto_detalle' producto.id %}" class="product-link">
                         <div class="card mb-4 shadow-sm">
-                            {% if producto.imagen %}
-                                <img src="{{ producto.imagen.url }}" class="card-img-top" alt="{{ producto.nombre }}">
+                            {% if producto.imagenes.all %}
+                                <img src="{{ producto.imagenes.first.imagen.url }}" class="card-img-top" alt="{{ producto.nombre }}">
                             {% else %}
                                 <img src="https://via.placeholder.com/150" class="card-img-top" alt="Sin imagen">
                             {% endif %}

@@ -1,23 +1,21 @@
-# nombre_de_la_app/views.py
-
 from django.http import HttpResponse
-from .models import Producto,Variante
-from django.shortcuts import render,get_object_or_404
+from .models import Producto, Subproducto  # Cambié Variante por Subproducto
+from django.shortcuts import render, get_object_or_404
 from django.http import JsonResponse
 
 def agregar_al_carrito(request):
     if request.method == 'POST':
         producto_id = request.POST.get('producto_id')
-        variante_id = request.POST.get('variante_id')
+        subproducto_id = request.POST.get('subproducto_id')  # Cambié variante_id por subproducto_id
         cantidad = int(request.POST.get('cantidad', 0))
 
         producto = get_object_or_404(Producto, id=producto_id)
 
-        if variante_id:
-            variante = get_object_or_404(Variante, id=variante_id)
-            if cantidad > variante.stock:
+        if subproducto_id:
+            subproducto = get_object_or_404(Subproducto, id=subproducto_id)  # Cambié variante por subproducto
+            if cantidad > subproducto.stock:
                 return JsonResponse({'error': 'Cantidad excede el stock disponible'}, status=400)
-            # Lógica para agregar la variante al carrito
+            # Lógica para agregar el subproducto al carrito
         else:
             if cantidad > producto.stock:
                 return JsonResponse({'error': 'Cantidad excede el stock disponible'}, status=400)
@@ -33,12 +31,10 @@ def productos(request):
 
 def producto_detalle(request, id):
     producto = get_object_or_404(Producto, id=id)
-    a = list(producto.variantes.all())
-    tiene_variantes = producto.variantes.exists()  # Verifica si existen variantes
-    print(producto)
+    tiene_subproductos = producto.subproductos.exists()  # Cambié tiene_variantes por tiene_subproductos
     return render(request, 'producto/detalle.html', {
         'producto': producto,
-        'tiene_variantes': tiene_variantes,
+        'tiene_subproductos': tiene_subproductos,  # Cambié tiene_variantes por tiene_subproductos
     })
 
 def index(request):
