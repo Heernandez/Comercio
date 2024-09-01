@@ -1,0 +1,278 @@
+<!-- producto/templates/producto/detalle_producto.html -->
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Detalle del Producto</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
+    <style>
+        .carousel-item img {
+            max-height: 400px;
+            object-fit: contain;
+            width: 100%;
+        }
+        .card {
+            position: relative;
+        }
+        .quantity-controls {
+            position: absolute;
+            bottom: 10px;
+            right: 10px;
+            background: rgba(255, 255, 255, 0.8);
+            padding: 5px;
+            border-radius: 5px;
+            display: none;
+        }
+        .card:hover .quantity-controls {
+            display: block;
+        }
+        .quantity-controls.always-visible {
+            display: block;
+        }
+        .image-gallery {
+            position: relative;
+        }
+        .image-gallery img {
+            max-height: 200px;
+            max-width: 100%;
+            object-fit: cover;
+        }
+        .no-images-placeholder {
+            max-height: 200px;
+            max-width: 100%;
+            object-fit: cover;
+        }
+    </style>
+    
+    
+</head>
+<body>
+    <nav class="navbar navbar-dark bg-dark"
+        <div class="container-fluid">
+            <a class="navbar-brand" href="/producto">Inicio</a> 
+            <form class="d-flex">
+            <input class="form-control me-2" type="search" placeholder="Search" aria-label="Search">
+            <button class="btn btn-outline-success" type="submit">Search</button>
+            </form>
+        </div>
+    </nav>
+    <div class="container mt-5">
+        <h1 class="mb-4">{{ producto.nombre }}</h1>
+
+        <!-- Carrusel de imágenes del producto -->
+        <div id="productoImagenesCarousel" class="carousel slide mb-4" data-bs-ride="carousel">
+            <div class="carousel-inner">
+                {% if producto.imagen and producto.imagen.name %}
+                    <div class="carousel-item active">
+                        <img src="{{ producto.imagen.url }}" class="d-block w-100" alt="{{ producto.nombre }}">
+                    </div>
+                {% endif %}
+
+                {% for imagen in producto.imagenes.all %}
+                    {% if imagen.imagen and imagen.imagen.name %}
+                        <div class="carousel-item {% if not producto.imagen and forloop.first %}active{% endif %}">
+                            <img src="{{ imagen.imagen.url }}" class="d-block w-100" alt="Imagen {{ forloop.counter }}">
+                        </div>
+                    {% endif %}
+                {% endfor %}
+            </div>
+            <!-- Controles del carrusel -->
+            <button class="carousel-control-prev" type="button" data-bs-target="#productoImagenesCarousel" data-bs-slide="prev">
+                <span class="carousel-control-prev-icon" aria-hidden="true"></span>
+                <span class="visually-hidden">Anterior</span>
+            </button>
+            <button class="carousel-control-next" type="button" data-bs-target="#productoImagenesCarousel" data-bs-slide="next">
+                <span class="carousel-control-next-icon" aria-hidden="true"></span>
+                <span class="visually-hidden">Siguiente</span>
+            </button>
+        </div>
+
+        <!-- Información del producto -->
+        <div class="mb-3">
+            <h3>Descripción</h3>
+            <p>{{ producto.descripcion }}</p>
+        </div>
+
+        <div class="mb-3">
+            <h3>Precio: ${{ producto.precio_base }}</h3>
+        </div>
+
+        <div class="mb-3">
+            <h3>Contacto de Referencia: {{ producto.contacto_de_referencia }}</h3>
+        </div>
+
+        {% if tiene_subproductos %}
+            <!-- Mostrar los subproductos si están disponibles -->
+            <h3>Productos Disponibles</h3>
+            <div class="row">
+                {% for subproducto in producto.subproductos.all %}
+                    <div class="col-md-4 mb-3">
+                        <div class="card h-100 position-relative">
+                            <div class="image-gallery">
+                                {% if subproducto.imagenes.exists %}
+                                    <div id="subproductosImagenesCarousel-{{ subproducto.id }}" class="carousel slide" data-bs-ride="carousel">
+                                        <div class="carousel-inner">
+                                            {% for imagen in subproducto.imagenes.all %}
+                                                {% if imagen.imagen and imagen.imagen.name %}
+                                                    <div class="carousel-item {% if forloop.first %}active{% endif %}">
+                                                        <img src="{{ imagen.imagen.url }}" alt="Imagen de {{ subproducto.nombre }}" class="d-block w-100">
+                                                    </div>
+                                                {% endif %}
+                                            {% endfor %}
+                                        </div>
+                                        <!-- Controles del carrusel -->
+                                        <button class="carousel-control-prev" type="button" data-bs-target="#subproductosImagenesCarousel-{{ subproducto.id }}" data-bs-slide="prev">
+                                            <span class="carousel-control-prev-icon" aria-hidden="true"></span>
+                                            <span class="visually-hidden">Anterior</span>
+                                        </button>
+                                        <button class="carousel-control-next" type="button" data-bs-target="#subproductosImagenesCarousel-{{ subproducto.id }}" data-bs-slide="next">
+                                            <span class="carousel-control-next-icon" aria-hidden="true"></span>
+                                            <span class="visually-hidden">Siguiente</span>
+                                        </button>
+                                    </div>
+                                {% else %}
+                                    <img src="https://via.placeholder.com/150" class="img-thumbnail no-images-placeholder" alt="Sin imagen">
+                                {% endif %}
+                            </div>
+                            <div class="card-body">
+                                <h5 class="card-title">{{ subproducto.nombre }}</h5>
+                                <p class="card-text">Stock: {{ subproducto.stock_disponible }}</p>
+                                <p class="card-text">Precio: ${{ subproducto.precio }}</p>
+                                {% if subproducto.stock_disponible > 0 %}
+                                <div class="quantity-controls">
+                                    <button class="btn btn-outline-secondary btn-sm" onclick="decrementarCantidad('{{ subproducto.id }}')">-</button>
+                                    <input type="number" id="cantidad-{{ subproducto.id }}" name="cantidad-{{ subproducto.id }}" value="0" min="0" class="form-control text-center" style="width: 60px;" data-stock="{{ subproducto.stock_disponible }}">
+                                    <button class="btn btn-outline-secondary btn-sm" onclick="incrementarCantidad('{{ subproducto.id }}')">+</button>
+                                </div>
+                                {% else %}
+                                <div class="text-danger" style="font-weight: bold;">
+                                    <i class="bi bi-exclamation-circle"></i> ¡Agotado!
+                                </div>
+                                {% endif %}
+                            </div>
+                        </div>
+                    </div>
+                {% endfor %}
+            </div>
+        {% endif %}
+        <!-- Mostrar el formulario solo si no hay subproductos -->
+        <div class="d-flex mt-4">
+            {% if not tiene_subproductos %} 
+                <div>
+                    <button class="btn btn-outline-secondary btn-sm"  onclick="decrementarCantidad('{{ producto.id }}')">-</button>
+                    <input type="number" id="cantidad-{{ producto.id }}" name="cantidad-{{ producto.id }}" value="0" min="0" class="form-control text-center" style="width: 60px;" data-stock="{{ producto.stock_disponible }}">
+                    <button class="btn btn-outline-secondary btn-sm" onclick="incrementarCantidad('{{ producto.id }}')">+</button>
+                </div>
+            {% endif %}
+        </div>
+        <br/>
+        <button class="btn btn-primary" onclick="agregarAlCarrito('{{ producto.id }}','{{tiene_subproductos}}')">Agregar al Carrito</button>
+        <br/>
+       
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        function incrementarCantidad(id) {
+            let cantidadInput = document.getElementById('cantidad-' + id);
+            let cantidad = parseInt(cantidadInput.value);
+            let stock = parseInt(cantidadInput.getAttribute('data-stock'));
+            if (cantidad < stock) {
+                cantidadInput.value = cantidad + 1;
+                actualizarVisibilidadControls(id);
+            } else {
+                alert('No hay suficiente stock disponible');
+            }
+        }
+
+        function decrementarCantidad(id) {
+            let cantidadInput = document.getElementById('cantidad-' + id);
+            let cantidad = parseInt(cantidadInput.value);
+            if (cantidad > 0) {
+                cantidadInput.value = cantidad - 1;
+                actualizarVisibilidadControls(id);
+            }
+        }
+        function actualizarVisibilidadControls(id) {
+            let cantidadInput = document.getElementById('cantidad-' + id);
+            let controls = document.querySelector('#cantidad-' + id).closest('.quantity-controls');
+            if (parseInt(cantidadInput.value) > 0) {
+                try{
+                    controls.classList.add('always-visible');
+                }catch{
+
+                }
+            } else {
+                try{
+                    controls.classList.remove('always-visible');
+                }catch{
+                    
+                }
+            }
+        }
+
+        function agregarAlCarrito(id, tiene_subproductos) {
+            
+            let productoId = id;
+            let cantidadesSubproductos = {};
+            let cantidadProducto = 0;
+            if (tiene_subproductos == "True") {
+                // Obtener los subproductos
+                let subproductosElements = document.querySelectorAll('[id^="cantidad-"]');
+                subproductosElements.forEach(input => {
+                    let subproductoId = input.id.split('-')[1];
+                    let cantidadSubproducto = parseInt(input.value) || 0;
+                    if (cantidadSubproducto > 0) {
+                        cantidadesSubproductos[subproductoId] = cantidadSubproducto;
+                    }
+                });
+                
+                if (Object.keys(cantidadesSubproductos).length == 0){
+                    alert('Debe agregar almenos un producto');
+                }
+            }else{
+                cantidadProducto = document.getElementById('cantidad-' + productoId)?.value || 0
+                console.log("cantidad prod: "+cantidadProducto);
+                if(cantidadProducto == 0){
+                    alert('Debe agregar almenos un producto');
+                }
+            }
+
+        
+            let data = {
+                productoId: productoId,
+                cantidadProducto: cantidadProducto,
+                cantidadesSubproductos: cantidadesSubproductos
+            };
+
+            
+        
+            console.log('Datos para agregar al carrito:', data);
+        
+            // Aquí puedes enviar `data` al servidor usando fetch o AJAX
+            /*
+            fetch('/ruta/api/agregar-al-carrito/', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRFToken': getCsrfToken() // Si estás usando CSRF en Django
+                },
+                body: JSON.stringify(data)
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    alert('Producto añadido al carrito');
+                } else {
+                    alert('Error al añadir el producto al carrito');
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+            });
+            */
+        }
+    </script>
+</body>
+</html>
