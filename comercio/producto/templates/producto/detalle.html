@@ -215,22 +215,22 @@
             console.log("LUCHO");
             console.log(data);
             // Enviar datos al servidor
-            fetch('/ruta/api/agregar-al-carrito/', {
+            fetch('http://localhost:8000/comercio/api/actualizar-stock/', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
-                    'X-CSRFToken': getCsrfToken() // Si estás usando CSRF en Django
                 },
                 body: JSON.stringify(data)
             })
             .then(response => response.json())
             .then(data => {
                 if (data.success) {
-                    alert('Producto añadido al carrito');
+                    alert('Stock actualizado y producto añadido al carrito');
                     let resumenModal = bootstrap.Modal.getInstance(document.getElementById('resumenModal'));
                     resumenModal.hide();
+                    window.location.reload();
                 } else {
-                    alert('Error al añadir el producto al carrito');
+                    alert('Error al actualizar el stock');
                 }
             })
             .catch(error => {

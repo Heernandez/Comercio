@@ -1,7 +1,42 @@
-from django.http import HttpResponse
+from django.http import HttpResponse,JsonResponse
 from .models import Producto, Subproducto  # Cambié Variante por Subproducto
 from django.shortcuts import render, get_object_or_404
-from django.http import JsonResponse
+from django.views.decorators.csrf import csrf_exempt
+import json
+@csrf_exempt
+def actualizar_stock(request):
+    if request.method == 'POST':
+        data = json.loads(request.body.decode('utf-8'))
+        producto_id = data.get('productoId')
+        cantidad_producto = data.get('cantidadProducto', 0)
+        cantidades_subproductos = data.get('cantidadesSubproductos', {})
+
+        try:
+            if cantidades_subproductos:
+                # Actualizar el stock de los subproductos
+                for subproducto_id, cantidad in cantidades_subproductos.items():
+                    subproducto = Subproducto.objects.get(id=subproducto_id)
+                    subproducto.stock_disponible -= cantidad
+                    subproducto.save()
+
+                # Calcular el stock total de todos los subproductos y actualizar el producto
+                producto = Producto.objects.get(id=producto_id)
+                subproductos = Subproducto.objects.filter(producto=producto)
+                total_stock_subproductos = sum([sub.stock_disponible for sub in subproductos])
+                producto.stock_disponible = total_stock_subproductos
+                producto.save()
+            else:
+                # Si no hay subproductos, actualizar el stock del producto principal
+                producto = Producto.objects.get(id=producto_id)
+                producto.stock_disponible -= cantidad_producto
+                producto.save()
+
+            return JsonResponse({'success': True})
+
+        except Exception as e:
+            return JsonResponse({'error': str(e)}, status=500)
+    else:
+        return JsonResponse({'error': 'Método no permitido'}, status=405)
 
 def lista_productos(request):
     query = request.GET.get('search', '')
