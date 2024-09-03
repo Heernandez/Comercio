@@ -156,7 +156,7 @@
         <!-- Mostrar el formulario solo si no hay subproductos -->
         <div class="d-flex mt-4">
             {% if not tiene_subproductos %} 
-                <div>
+                <div class="row">
                     <button class="btn btn-outline-secondary btn-sm" onclick="decrementarCantidad('{{ producto.id }}')">-</button>
                     <input type="number" id="cantidad-{{ producto.id }}" name="cantidad-{{ producto.id }}" value="0" min="0" class="form-control text-center" style="width: 60px;" data-stock="{{ producto.stock_disponible }}" data-precio="{{ producto.precio_base }}" readonly>
                     <button class="btn btn-outline-secondary btn-sm" onclick="incrementarCantidad('{{ producto.id }}')">+</button>
@@ -177,19 +177,17 @@
                     <div class="modal-body" id="resumen-pedido">
                     <!-- El resumen del pedido se insertará aquí -->
                     </div>
-                    <div class="modal-footer">
+                    <div class="modal-footer row">
                         <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
-                        <button type="button" class="btn btn-primary" id="confirmar-pedido" onclick="confirmarCompra('{{ producto.id }}','{{tiene_subproductos}}')">Confirmar Pedido</button>
+                        <button type="button" class="btn btn-primary" id="confirmar-pedido" onclick="confirmarCompra('{{ producto.id }}','{{tiene_subproductos}}','{{ ambiente }}')">Confirmar Pedido</button>
                     </div>
                 </div>
             </div>
         </div>
-  
     </div>
-
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
     <script>
-        function confirmarCompra(id, tiene_subproductos) {
+        function confirmarCompra(id, tiene_subproductos,ambiente) {
             let productoId = document.querySelector('[id^="cantidad-"]').id.split('-')[1];
             let cantidadesSubproductos = {};
             let cantidadProducto = 0;
@@ -215,7 +213,13 @@
             console.log("LUCHO");
             console.log(data);
             // Enviar datos al servidor
-            fetch('http://localhost:8000/comercio/api/actualizar-stock/', {
+            let url = ""
+            if(ambiente == 'True'){
+                url = 'http://localhost:8000/comercio/api/actualizar-stock/'
+            }else{
+                url = 'http://161.35.182.37//comercio/api/actualizar-stock/'
+            }
+            fetch(url, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',

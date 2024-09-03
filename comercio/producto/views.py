@@ -3,6 +3,7 @@ from .models import Producto, Subproducto  # Cambié Variante por Subproducto
 from django.shortcuts import render, get_object_or_404
 from django.views.decorators.csrf import csrf_exempt
 import json
+from django.conf import settings
 @csrf_exempt
 def actualizar_stock(request):
     if request.method == 'POST':
@@ -74,11 +75,13 @@ def productos(request):
     return render(request, 'producto/producto.html', {'productos': productos})
 
 def producto_detalle(request, id):
+    ambiente = settings.DEBUG
     producto = get_object_or_404(Producto, id=id)
     tiene_subproductos = producto.subproductos.exists()  # Cambié tiene_variantes por tiene_subproductos
     return render(request, 'producto/detalle.html', {
         'producto': producto,
-        'tiene_subproductos': tiene_subproductos,  # Cambié tiene_variantes por tiene_subproductos
+        'tiene_subproductos': tiene_subproductos,
+        'ambiente': ambiente,  # Cambié tiene_variantes por tiene_subproductos
     })
 
 def index(request):
