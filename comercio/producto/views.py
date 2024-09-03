@@ -4,6 +4,9 @@ from django.shortcuts import render, get_object_or_404
 from django.views.decorators.csrf import csrf_exempt
 import json
 from django.conf import settings
+from django.contrib.auth.decorators import login_required
+
+@login_required
 @csrf_exempt
 def actualizar_stock(request):
     if request.method == 'POST':
@@ -39,6 +42,7 @@ def actualizar_stock(request):
     else:
         return JsonResponse({'error': 'Método no permitido'}, status=405)
 
+@login_required
 def lista_productos(request):
     query = request.GET.get('search', '')
     if query:
@@ -48,6 +52,7 @@ def lista_productos(request):
 
     return render(request, 'producto/producto.html', {'productos': productos})
 
+@login_required
 def agregar_al_carrito(request):
     if request.method == 'POST':
         producto_id = request.POST.get('producto_id')
@@ -70,10 +75,14 @@ def agregar_al_carrito(request):
 
     return JsonResponse({'error': 'Método no permitido'}, status=405)
 
+
+@login_required
 def productos(request):
     productos = Producto.objects.all()  # Obtiene todos los productos
     return render(request, 'producto/producto.html', {'productos': productos})
 
+
+@login_required
 def producto_detalle(request, id):
     ambiente = settings.DEBUG
     producto = get_object_or_404(Producto, id=id)

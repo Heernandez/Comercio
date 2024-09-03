@@ -20,10 +20,21 @@
     <nav class="navbar navbar-dark bg-dark">
         <div class="container-fluid">
             <a class="navbar-brand" href="/comercio/">Inicio</a>
+            {% if user.is_authenticated %}
+                <span class="navbar-text text-light ms-3">Bienvenido, {{ user.first_name }}! ({{ user.get_username }})</span>
+            {% endif %}
             <form class="d-flex" method="GET" action="{% url 'lista_productos' %}">
                 <input class="form-control me-2" type="search" name="search" placeholder="Search" aria-label="Search" value="{{ request.GET.search }}">
                 <button class="btn btn-outline-success" type="submit">Search</button>
             </form>
+            <div class="d-flex">
+                {% if user.is_authenticated %}
+                    <form method="POST" action="{% url 'logout' %}">
+                        {% csrf_token %}
+                        <button class="btn btn-outline-danger ms-2" type="submit">Logout</button>
+                    </form>
+                {% endif %}
+            </div>
         </div>
     </nav>
     <div class="container mt-5">

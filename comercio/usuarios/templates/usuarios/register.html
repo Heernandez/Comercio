@@ -1,0 +1,71 @@
+<!-- usuarios/templates/usuarios/register.html -->
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Register</title>
+</head>
+<body>
+    <h2>Register</h2>
+   
+    <form id="registerForm" onsubmit="return handleSubmit(event,'{{ ambiente }}')">
+        {% csrf_token %}
+        {{ form.as_p }}
+        <button type="submit">Register</button>
+    </form>
+
+    <div id="errorMessages" style="color: red;"></div>
+
+    <script>
+        async function handleSubmit(event,ambiente) {
+            event.preventDefault();  // Evita que el formulario se envíe normalmente
+
+            // Obtén los datos del formulario
+            const form = document.getElementById('registerForm');
+            const formData = new FormData(form);
+
+            // Convierte FormData a un objeto para enviar en JSON
+            const data = {};
+            formData.forEach((value, key) => {
+                data[key] = value;
+            });
+
+            // Obtén el token CSRF
+            const csrfToken = form.querySelector('[name="csrfmiddlewaretoken"]').value;
+
+            // Limpia mensajes de error previos
+            document.getElementById('errorMessages').innerHTML = '';
+            console.log("lucho:\n",data);
+            try {
+                // Envía la petición con fetch
+                const response = await fetch("{% url 'register' %}", {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-CSRFToken': csrfToken  // Incluye el token CSRF en los encabezados
+                    },
+                    body: JSON.stringify(data)
+                });
+
+                const result = await response.json();
+
+                if (response.ok && result.success) {
+                    window.location.href = '{% url "login" %}';
+                } else {
+                    // Muestra los errores si la respuesta falla
+                    const errors = result.errors;
+                    for (const [field, messages] of Object.entries(errors)) {
+                        messages.forEach(message => {
+                            document.getElementById('errorMessages').innerHTML += `<p>${field}: ${message}</p>`;
+                        });
+                    }
+                }
+            } catch (error) {
+                console.error('Error al enviar el formulario:', error);
+            }
+        }
+    </script>
+</body>
+</html>

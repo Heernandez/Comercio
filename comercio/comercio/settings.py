@@ -39,6 +39,7 @@ INSTALLED_APPS = [
     "django.contrib.staticfiles",
     "producto.apps.ProductoConfig",
     'corsheaders',
+    'usuarios',
 ]
 
 MIDDLEWARE = [
@@ -50,6 +51,7 @@ MIDDLEWARE = [
     "django.contrib.auth.middleware.AuthenticationMiddleware",
     "django.contrib.messages.middleware.MessageMiddleware",
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
+    'usuarios.middleware.RedirectAuthenticatedUserMiddleware',
 ]
 
 ROOT_URLCONF = "comercio.urls"
@@ -102,6 +104,9 @@ AUTH_PASSWORD_VALIDATORS = [
     },
 ]
 
+AUTHENTICATION_BACKENDS = [
+    'django.contrib.auth.backends.ModelBackend',  # Esta es la configuración por defecto
+]
 
 # Internationalization
 # https://docs.djangoproject.com/en/5.0/topics/i18n/
@@ -124,7 +129,7 @@ STATIC_URL = "static/"
 if(not DEBUG):
     STATIC_ROOT = "/var/www/comercio/staticfiles/"
 else:
-    STATICFILES_DIRS = (os.path.join(BASE_DIR, 'static'),)
+    #STATICFILES_DIRS = (os.path.join(BASE_DIR, 'static'),)
     STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
 
 # Default primary key field type
@@ -147,3 +152,9 @@ CORS_ALLOWED_ORIGINS = [
     "http://161.35.182.37"
     # Agrega otros dominios permitidos aquí
 ]
+
+# settings.py
+AUTH_USER_MODEL = 'usuarios.CustomUser'
+LOGIN_REDIRECT_URL = '/comercio/'
+LOGOUT_REDIRECT_URL = '/usuarios/login'
+
