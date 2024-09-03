@@ -139,7 +139,7 @@
                                 {% if subproducto.stock_disponible > 0 %}
                                 <div class="quantity-controls">
                                     <button class="btn btn-outline-secondary btn-sm" onclick="decrementarCantidad('{{ subproducto.id }}')">-</button>
-                                    <input type="number" id="cantidad-{{ subproducto.id }}" name="cantidad-{{ subproducto.id }}" value="0" min="0" class="form-control text-center" style="width: 60px;" data-stock="{{ subproducto.stock_disponible }}" data-precio="{{ subproducto.precio }}">
+                                    <input type="number" id="cantidad-{{ subproducto.id }}" name="cantidad-{{ subproducto.id }}" value="0" min="0" class="form-control text-center" style="width: 60px;" data-stock="{{ subproducto.stock_disponible }}" data-precio="{{ subproducto.precio }}" readonly>
                                     <button class="btn btn-outline-secondary btn-sm" onclick="incrementarCantidad('{{ subproducto.id }}')">+</button>
                                 </div>
                                 {% else %}
@@ -158,7 +158,7 @@
             {% if not tiene_subproductos %} 
                 <div>
                     <button class="btn btn-outline-secondary btn-sm" onclick="decrementarCantidad('{{ producto.id }}')">-</button>
-                    <input type="number" id="cantidad-{{ producto.id }}" name="cantidad-{{ producto.id }}" value="0" min="0" class="form-control text-center" style="width: 60px;" data-stock="{{ producto.stock_disponible }}" data-precio="{{ producto.precio_base }}">
+                    <input type="number" id="cantidad-{{ producto.id }}" name="cantidad-{{ producto.id }}" value="0" min="0" class="form-control text-center" style="width: 60px;" data-stock="{{ producto.stock_disponible }}" data-precio="{{ producto.precio_base }}" readonly>
                     <button class="btn btn-outline-secondary btn-sm" onclick="incrementarCantidad('{{ producto.id }}')">+</button>
                 </div>
             {% endif %}
