@@ -23,7 +23,7 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 SECRET_KEY = "django-insecure--v^ktsbrkh4e043d&n$+t)atov1evar9)0f(gzhs37ul+1!oon"
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = False
+DEBUG = True
 
 ALLOWED_HOSTS = ['*']
 
@@ -118,11 +118,14 @@ USE_TZ = True
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/5.0/howto/static-files/
 
-
+import os
 STATIC_URL = "static/"
-STATIC_ROOT = "/var/www/comercio/staticfiles/"
-if(DEBUG):
-    STATIC_ROOT = "static/"
+
+if(not DEBUG):
+    STATIC_ROOT = "/var/www/comercio/staticfiles/"
+else:
+    STATICFILES_DIRS = (os.path.join(BASE_DIR, 'static'),)
+    STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
 
 # Default primary key field type
 # https://docs.djangoproject.com/en/5.0/ref/settings/#default-auto-field
@@ -130,14 +133,17 @@ if(DEBUG):
 DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 
 MEDIA_URL = '/media/'
-MEDIA_ROOT = '/var/www/comercio/media/'
-if(DEBUG):
-    MEDIA_URL = '/media/'
-    MEDIA_ROOT = "/media/"
+if(not DEBUG):
+    print("lucho a")
+    MEDIA_ROOT = "/var/www/comercio/media/"
+else:
+    print("lucho B")
+    MEDIA_ROOT = BASE_DIR / 'media'
 
 # Permitir solicitudes desde cualquier origen
 CORS_ALLOW_ALL_ORIGINS = True
 CORS_ALLOWED_ORIGINS = [
     "http://localhost:8000",
+    "http://161.35.182.37"
     # Agrega otros dominios permitidos aquí
 ]
