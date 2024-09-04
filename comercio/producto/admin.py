@@ -4,11 +4,11 @@ from .models import Producto, Subproducto, Imagen
 
 class ImagenInline(admin.TabularInline):
     model = Imagen
-    extra = 1
+    extra = 0
 
 class SubproductoInline(admin.StackedInline):  # O TabularInline según tu preferencia
     model = Subproducto
-    extra = 1
+    extra = 0
 
 @admin.register(Producto)
 class ProductoAdmin(admin.ModelAdmin):

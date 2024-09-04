@@ -3,7 +3,7 @@ from .models import Reserva, ProductoReserva
 
 class ProductoReservaInline(admin.TabularInline):
     model = ProductoReserva
-    extra = 1  # Número de líneas adicionales en blanco que se muestran
+    extra = 0  # Número de líneas adicionales en blanco que se muestran
 
 class ReservaAdmin(admin.ModelAdmin):
     list_display = ('usuario', 'estado', 'cantidad_total', 'valor_total', 'fecha_reserva')

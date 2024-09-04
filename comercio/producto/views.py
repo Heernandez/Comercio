@@ -7,12 +7,18 @@ from django.conf import settings
 from django.contrib.auth.decorators import login_required
 from django.urls import reverse
 from django.shortcuts import redirect
+from reserva.models import Reserva, ProductoReserva
+import uuid  # Para generar un identificador único
+from datetime import datetime
 
 
-@login_required
+def generar_codigo_reserva():
+    """Genera un código único para la reserva"""
+    return f"R-{datetime.now().strftime('%Y%m%d%H%M%S')}-{uuid.uuid4().hex[:6].upper()}"
+
 @csrf_exempt
 def actualizar_stock(request):
-    print("lucho actualiza stock")
+    print("Actualizando stock")
     if request.method == 'POST':
         data = json.loads(request.body.decode('utf-8'))
         producto_id = data.get('productoId')
@@ -20,6 +26,25 @@ def actualizar_stock(request):
         cantidades_subproductos = data.get('cantidadesSubproductos', {})
 
         try:
+            # Obtener el usuario desde la solicitud o asignar uno por defecto
+            usuario = request.user
+            # Crear la reserva
+            # Generar un código de reserva único
+            codigo_reserva = generar_codigo_reserva()
+
+            # Crear la reserva con el código generado
+            reserva = Reserva.objects.create(
+                codigo_reserva=codigo_reserva,
+                usuario=usuario,
+                cantidad_total=cantidad_producto,  # Actualizar más adelante
+                valor_total=0.0  # Actualizar más adelante
+            )
+
+            valor_total = 0
+            cantidad_total = 0
+
+            producto = Producto.objects.get(id=producto_id)
+
             if cantidades_subproductos:
                 # Actualizar el stock de los subproductos
                 for subproducto_id, cantidad in cantidades_subproductos.items():
@@ -27,19 +52,48 @@ def actualizar_stock(request):
                     subproducto.stock_disponible -= cantidad
                     subproducto.save()
 
+                    # Crear la instancia de ProductoReserva
+                    ProductoReserva.objects.create(
+                        reserva=reserva,
+                        producto=subproducto.producto,
+                        subproducto=subproducto,
+                        cantidad=cantidad
+                    )
+
+                    # Acumular valor y cantidad total
+                    valor_total += subproducto.precio * cantidad  # Asumiendo que el precio está en el modelo Producto
+                    cantidad_total += cantidad
+
                 # Calcular el stock total de todos los subproductos y actualizar el producto
                 producto = Producto.objects.get(id=producto_id)
                 subproductos = Subproducto.objects.filter(producto=producto)
                 total_stock_subproductos = sum([sub.stock_disponible for sub in subproductos])
                 producto.stock_disponible = total_stock_subproductos
                 producto.save()
+
             else:
                 # Si no hay subproductos, actualizar el stock del producto principal
                 producto = Producto.objects.get(id=producto_id)
                 producto.stock_disponible -= cantidad_producto
                 producto.save()
 
-            return JsonResponse({'success': True})
+                # Crear la instancia de ProductoReserva
+                ProductoReserva.objects.create(
+                    reserva=reserva,
+                    producto=producto,
+                    cantidad=cantidad_producto
+                )
+
+                # Acumular valor y cantidad total
+                valor_total += producto.precio_base * cantidad_producto
+                cantidad_total += cantidad_producto
+
+            # Actualizar cantidad_total y valor_total en la reserva
+            reserva.cantidad_total = cantidad_total
+            reserva.valor_total = valor_total
+            reserva.save()
+
+            return JsonResponse({'success': True, 'reserva_id': reserva.id})
 
         except Exception as e:
             return JsonResponse({'error': str(e)}, status=500)
