@@ -5,10 +5,14 @@ from django.views.decorators.csrf import csrf_exempt
 import json
 from django.conf import settings
 from django.contrib.auth.decorators import login_required
+from django.urls import reverse
+from django.shortcuts import redirect
+
 
 @login_required
 @csrf_exempt
 def actualizar_stock(request):
+    print("lucho actualiza stock")
     if request.method == 'POST':
         data = json.loads(request.body.decode('utf-8'))
         producto_id = data.get('productoId')
@@ -86,12 +90,15 @@ def productos(request):
 def producto_detalle(request, id):
     ambiente = settings.DEBUG
     producto = get_object_or_404(Producto, id=id)
-    tiene_subproductos = producto.subproductos.exists()  # Cambié tiene_variantes por tiene_subproductos
-    return render(request, 'producto/detalle.html', {
-        'producto': producto,
-        'tiene_subproductos': tiene_subproductos,
-        'ambiente': ambiente,  # Cambié tiene_variantes por tiene_subproductos
-    })
+    tiene_subproductos = producto.subproductos.exists()  
+    if(producto.es_visible):
+        return render(request, 'producto/detalle.html', {
+            'producto': producto,
+            'tiene_subproductos': tiene_subproductos,
+            'ambiente': ambiente, 
+        })
+    else:
+        return redirect(reverse('productos'))
 
 def index(request):
     return HttpResponse("Página de inicio de la aplicación.")

@@ -17,6 +17,7 @@ class Producto(models.Model):
     stock_disponible = models.IntegerField(default=0)
     imagenes = models.ManyToManyField(Imagen, blank=True, related_name='productos')
     creado_por = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
+    es_visible = models.BooleanField(default=True)
 
     def stock_total(self):
         total_stock_subproductos = sum(subproducto.stock_disponible for subproducto in self.subproductos.all())

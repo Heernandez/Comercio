@@ -137,15 +137,15 @@
                                 <p class="card-text">Stock: {{ subproducto.stock_disponible }}</p>
                                 <p class="card-text">Precio: ${{ subproducto.precio }}</p>
                                 {% if subproducto.stock_disponible > 0 %}
-                                <div class="quantity-controls">
-                                    <button class="btn btn-outline-secondary btn-sm" onclick="decrementarCantidad('{{ subproducto.id }}')">-</button>
-                                    <input type="number" id="cantidad-{{ subproducto.id }}" name="cantidad-{{ subproducto.id }}" value="0" min="0" class="form-control text-center" style="width: 60px;" data-stock="{{ subproducto.stock_disponible }}" data-precio="{{ subproducto.precio }}" readonly>
-                                    <button class="btn btn-outline-secondary btn-sm" onclick="incrementarCantidad('{{ subproducto.id }}')">+</button>
-                                </div>
+                                    <div class="quantity-controls">
+                                        <button class="btn btn-outline-secondary btn-sm" onclick="decrementarCantidad('{{ subproducto.id }}')">-</button>
+                                        <input type="number" id="cantidad-{{ subproducto.id }}" name="cantidad-{{ subproducto.id }}" value="0" min="0" class="form-control text-center" style="width: 60px;" data-stock="{{ subproducto.stock_disponible }}" data-precio="{{ subproducto.precio }}" readonly>
+                                        <button class="btn btn-outline-secondary btn-sm" onclick="incrementarCantidad('{{ subproducto.id }}')">+</button>
+                                    </div>
                                 {% else %}
-                                <div class="text-danger" style="font-weight: bold;">
-                                    <i class="bi bi-exclamation-circle"></i> ¡Agotado!
-                                </div>
+                                    <div class="text-danger" style="font-weight: bold;">
+                                        <i class="bi bi-exclamation-circle"></i> ¡Agotado!
+                                    </div>
                                 {% endif %}
                             </div>
                         </div>
@@ -156,15 +156,21 @@
         <!-- Mostrar el formulario solo si no hay subproductos -->
         <div class="d-flex mt-4">
             {% if not tiene_subproductos %} 
-                <div class="row">
-                    <button class="btn btn-outline-secondary btn-sm" onclick="decrementarCantidad('{{ producto.id }}')">-</button>
-                    <input type="number" id="cantidad-{{ producto.id }}" name="cantidad-{{ producto.id }}" value="0" min="0" class="form-control text-center" style="width: 60px;" data-stock="{{ producto.stock_disponible }}" data-precio="{{ producto.precio_base }}" readonly>
-                    <button class="btn btn-outline-secondary btn-sm" onclick="incrementarCantidad('{{ producto.id }}')">+</button>
-                </div>
+                {% if producto.stock_disponible > 0 %}
+                    <div class="row">
+                        <button class="btn btn-outline-secondary btn-sm" onclick="decrementarCantidad('{{ producto.id }}')">-</button>
+                        <input type="number" id="cantidad-{{ producto.id }}" name="cantidad-{{ producto.id }}" value="0" min="0" class="form-control text-center" style="width: 60px;" data-stock="{{ producto.stock_disponible }}" data-precio="{{ producto.precio_base }}" readonly>
+                        <button class="btn btn-outline-secondary btn-sm" onclick="incrementarCantidad('{{ producto.id }}')">+</button>
+                    </div>
+                {% else %}
+                    <div class="text-danger" style="font-weight: bold;">
+                        <i class="bi bi-exclamation-circle"></i> ¡Agotado!
+                    </div>
+                {% endif %}
             {% endif %}
         </div>
         <br/>
-        <button class="btn btn-primary" onclick="agregarAlCarrito('{{ producto.id }}','{{tiene_subproductos}}')">Agregar al Carrito</button>
+        <button class="btn btn-primary" onclick="agregarAlCarrito('{{ producto.id }}','{{tiene_subproductos}}')" "{% if producto.stock_disponible ==  0 %} disabled {% endif %}">Agregar al Carrito</button>
         <br/>
         <!-- Modal para el resumen del pedido -->
         <div class="modal fade" id="resumenModal" tabindex="-1" aria-labelledby="resumenModalLabel" aria-hidden="true">
@@ -178,7 +184,7 @@
                     <!-- El resumen del pedido se insertará aquí -->
                     </div>
                     <div class="modal-footer row">
-                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal" onclick="location.reload();">Cancelar</button>
                         <button type="button" class="btn btn-primary" id="confirmar-pedido" onclick="confirmarCompra('{{ producto.id }}','{{tiene_subproductos}}','{{ ambiente }}')">Confirmar Pedido</button>
                     </div>
                 </div>
@@ -188,7 +194,7 @@
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
     <script>
         function confirmarCompra(id, tiene_subproductos,ambiente) {
-            let productoId = document.querySelector('[id^="cantidad-"]').id.split('-')[1];
+            let productoId = id;
             let cantidadesSubproductos = {};
             let cantidadProducto = 0;
             if (tiene_subproductos === 'True') {

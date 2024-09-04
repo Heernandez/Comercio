@@ -12,6 +12,7 @@ def register(request):
         # Maneja la solicitud POST y los datos JSON
         try:
             data = json.loads(request.body.decode('utf-8'))
+            print("lucho:\n",data)
             form = CustomUserCreationForm(data)
             if form.is_valid():
                 user = form.save()
@@ -28,3 +29,5 @@ def register(request):
         form = CustomUserCreationForm()
     ambiente = settings.DEBUG
     return render(request, 'usuarios/register.html', {'form': form, 'ambiente': ambiente})
+
+

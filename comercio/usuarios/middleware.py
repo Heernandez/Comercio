@@ -8,6 +8,6 @@ class RedirectAuthenticatedUserMiddleware:
         # Verifica si la vista es de login y el usuario está autenticado
         if request.path == '/usuarios/login/' and request.user.is_authenticated:
             return redirect('/comercio/')  # Cambia 'profile' por la URL de destino
-
+        
         response = self.get_response(request)
         return response

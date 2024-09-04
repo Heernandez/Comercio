@@ -40,6 +40,8 @@ INSTALLED_APPS = [
     "producto.apps.ProductoConfig",
     'corsheaders',
     'usuarios',
+    'reserva',
+    'historial',
 ]
 
 MIDDLEWARE = [
@@ -155,6 +157,7 @@ CORS_ALLOWED_ORIGINS = [
 
 # settings.py
 AUTH_USER_MODEL = 'usuarios.CustomUser'
+LOGIN_URL = '/usuarios/login/'
 LOGIN_REDIRECT_URL = '/comercio/'
 LOGOUT_REDIRECT_URL = '/usuarios/login'
 

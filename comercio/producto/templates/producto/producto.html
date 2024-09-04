@@ -41,22 +41,24 @@
         <h1 class="mb-4">Lista de Productos</h1>
         <div class="row">
             {% for producto in productos %}
-                <div class="col-md-4">
-                    <a href="{% url 'producto_detalle' producto.id %}" class="product-link">
-                        <div class="card mb-4 shadow-sm">
-                            {% if producto.imagenes.all %}
-                                <img src="{{ producto.imagenes.first.imagen.url }}" class="card-img-top" alt="{{ producto.nombre }}">
-                            {% else %}
-                                <img src="https://via.placeholder.com/150" class="card-img-top" alt="Sin imagen">
-                            {% endif %}
-                            <div class="card-body">
-                                <h5 class="card-title">{{ producto.nombre }}</h5>
-                                <p class="card-text">Precio: ${{ producto.precio_base }}</p>
-                                <p class="card-text">Contacto: {{ producto.contacto_de_referencia }}</p>
+                {% if producto.es_visible %}
+                    <div class="col-md-4">
+                        <a href="{% url 'producto_detalle' producto.id %}" class="product-link">
+                            <div class="card mb-4 shadow-sm">
+                                {% if producto.imagenes.all %}
+                                    <img src="{{ producto.imagenes.first.imagen.url }}" class="card-img-top" alt="{{ producto.nombre }}">
+                                {% else %}
+                                    <img src="https://via.placeholder.com/150" class="card-img-top" alt="Sin imagen">
+                                {% endif %}
+                                <div class="card-body">
+                                    <h5 class="card-title">{{ producto.nombre }}</h5>
+                                    <p class="card-text">Precio: ${{ producto.precio_base }}</p>
+                                    <p class="card-text">Contacto: {{ producto.contacto_de_referencia }}</p>
+                                </div>
                             </div>
-                        </div>
-                    </a>
-                </div>
+                        </a>
+                    </div>
+                    {% endif %}
             {% endfor %}
         </div>
     </div>
