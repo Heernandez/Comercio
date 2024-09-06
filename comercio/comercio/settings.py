@@ -158,6 +158,6 @@ CORS_ALLOWED_ORIGINS = [
 # settings.py
 AUTH_USER_MODEL = 'usuarios.CustomUser'
 LOGIN_URL = '/usuarios/login/'
-LOGIN_REDIRECT_URL = '/comercio/'
+LOGIN_REDIRECT_URL = '/'
 LOGOUT_REDIRECT_URL = '/usuarios/login'
 
