@@ -20,8 +20,8 @@ from django.contrib import admin
 from django.urls import path, include
 
 urlpatterns = [
-    path("comercio/admin/", admin.site.urls),
-    path('comercio/', include('producto.urls')),
+    path("admin/", admin.site.urls),
+    path('', include('producto.urls')),
     path('usuarios/', include('usuarios.urls')),
 ]
 
