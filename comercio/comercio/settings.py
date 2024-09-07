@@ -152,8 +152,12 @@ CORS_ALLOW_ALL_ORIGINS = True
 CORS_ALLOWED_ORIGINS = [
     "http://localhost:8000",
     "http://161.35.182.37",
-    "https://vt-commerce.com"
-    # Agrega otros dominios permitidos aquí
+    "https://vt-commerce.com",
+    "https://www.vt-commerce.com"
+]
+CSRF_TRUSTED_ORIGINS = [
+    "https://vt-commerce.com",
+    "https://www.vt-commerce.com"
 ]
 
 # settings.py
