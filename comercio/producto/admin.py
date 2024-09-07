@@ -2,9 +2,18 @@ from django.contrib import admin
 from django.conf import settings
 from .models import Producto, Subproducto, Imagen
 
+
+
 class ImagenInline(admin.TabularInline):
     model = Imagen
     extra = 0
+    
+    def get_queryset(self, request):
+        qs = super().get_queryset(request)
+        if not request.user.is_superuser:
+            # Filtra los productos para que el usuario solo vea los que ha creado
+            qs = qs.filter(subida_por=request.user)
+        return qs.filter(subida_por=request.user)
 
 class SubproductoInline(admin.StackedInline):  # O TabularInline según tu preferencia
     model = Subproducto
@@ -22,7 +31,7 @@ class ProductoAdmin(admin.ModelAdmin):
         if not request.user.is_superuser:
             # Filtra los productos para que el usuario solo vea los que ha creado
             qs = qs.filter(creado_por=request.user)
-        return qs
+        return qs.filter(creado_por=request.user)
 
     def save_model(self, request, obj, form, change):
         if not change:
@@ -35,4 +44,26 @@ class SubproductoAdmin(admin.ModelAdmin):
     list_display = ('nombre', 'producto', 'precio')
     filter_horizontal = ('imagenes',)  # Permite seleccionar múltiples imágenes para el subproducto
 
-admin.site.register(Imagen)
+    def get_queryset(self, request):
+        qs = super().get_queryset(request)
+        if request.user.is_superuser:
+            return qs
+        return qs.filter(producto__creado_por=request.user)  # Filtrar subproductos de productos creados por el usuario
+
+@admin.register(Imagen)
+class ImagenAdmin(admin.ModelAdmin):
+    list_display = ('imagen', 'descripcion', 'subida_por')
+    readonly_fields = ('subida_por',)
+
+    def get_queryset(self, request):
+        qs = super().get_queryset(request)
+        if not request.user.is_superuser:
+            qs = qs.filter(subida_por=request.user)
+        return qs
+
+    def save_model(self, request, obj, form, change):
+        if not change:
+            obj.subida_por = request.user
+        obj.save()
+
+

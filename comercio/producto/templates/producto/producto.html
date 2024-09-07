@@ -28,6 +28,7 @@
                 <button class="btn btn-outline-success" type="submit">Search</button>
             </form>
             <div class="d-flex">
+                <a class="navbar-brand" href="/admin/">Admin</a>
                 {% if user.is_authenticated %}
                     <form method="POST" action="{% url 'logout' %}">
                         {% csrf_token %}

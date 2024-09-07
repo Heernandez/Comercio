@@ -10,6 +10,18 @@ class ReservaAdmin(admin.ModelAdmin):
     actions = ['aceptar_reservas', 'rechazar_reservas']
     inlines = [ProductoReservaInline]  # Asocia ProductoReserva con Reserva en el admin
 
+
+    def get_queryset(self, request):
+        qs = super().get_queryset(request)
+        if request.user.is_superuser:
+            return qs
+        return qs.filter(usuario=request.user)
+
+    # Solo permitir la visualización, no la edición
+    def has_change_permission(self, request, obj=None):
+        return False
+
+    
     def aceptar_reservas(self, request, queryset):
         for reserva in queryset:
             reserva.aceptar()
